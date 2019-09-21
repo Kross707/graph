@@ -1,67 +1,51 @@
-#pragma once
 #include "Node.h"
-#include<map>
 
-template<typename T, typename unique_identifier = unsigned int>
+template<typename T, typename U = unsigned int, typename S = double> 
 class graph
 {
-private:
-	std::map<unique_identifier, Node<T, unique_identifier>*> elements;
+	std::vector<Node<T, U, S>> nodes;
 public:
-	graph()
-	{
-	}
-	void defineNode(unique_identifier id, T data)
-	{
-		Node<T, unique_identifier>* temp;
-		temp = new Node<T, unique_identifier>(id, data);
+	graph() {}
 
-		auto ret = elements.insert(std::make_pair(id, temp));
-		if (ret.second == false)
-		{
-			std::cout << "CANNOT REINSERT SAME ID" << std::endl;
-			delete temp;
-			return;
-		}
-	}
-	void bindNode(unique_identifier id1, unique_identifier id2)
+	void add(U id, T data)
 	{
-		std::map<unique_identifier, Node<T, unique_identifier>*>::iterator is1 = elements.find(id1);
-		if (is1 == elements.end())
-		{
-			std::cout << id1 << " Not found" << std::endl;
-			return;
-		}
-		std::map<unique_identifier, Node<T, unique_identifier>*>::iterator is2 = elements.find(id2);
-		if (is2 == elements.end())
-		{
-			std::cout << id2 << " Not found" << std::endl;
-			return;
-		}
-		is1->second->connect(is2->second);
-		is2->second->connect(is1->second);
-	}
-	void display()
-	{
-		for (auto &it : elements)
-		{
-			Node<T, unique_identifier>* t = it.second;
-			std::cout << std::endl << "Node : [" << t->getId() << ", " << t->getData() << "]" << std::endl<<"Links : ";
-			for (auto u : t->getConnections())
+		for (unsigned int i = 0; i < nodes.size(); ++i)
+			if (nodes[i].getId() == id)
 			{
-				std::cout << "(" << t->getId() << ", " << u->getId() << ") ";
+				std::cout << "Cannot re-insert same id..." << std::endl;
+				return;
 			}
-			std::cout << std::endl;
-		}
+		nodes.emplace_back(id, data);
 	}
 
-	~graph()
+	void connect(U id1, U id2, S connectionStrength = S(0))
 	{
-		std::map<unique_identifier, Node<T, unique_identifier>*>::iterator it;
-		for (it = elements.begin(); it != elements.end(); ++it)
+		unsigned int item1 = -1, item2 = -1;
+		for (unsigned int i = 0; i < nodes.size(); ++i)
 		{
-			Node<T, unique_identifier>* temp = it->second;
-			delete temp;
+			if (nodes[i].getId() == id1)
+				item1 = i;
+			if (nodes[i].getId() == id2)
+				item2 = i;
+			if (item1 != -1 && item2 != -1)
+				break;
 		}
+		if (item1 == -1)
+		{
+			std::cout << id1 << " not found";
+			return;
+		}
+		if (item2 == -1)
+		{
+			std::cout << id2 << " not found";
+			return;
+		}
+		nodes[item1].connect(&nodes[item2], connectionStrength);
+	}
+
+	void display() const
+	{
+		for (unsigned int i = 0; i < nodes.size(); ++i)
+			nodes[i].display();
 	}
 };

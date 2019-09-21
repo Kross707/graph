@@ -1,27 +1,29 @@
-#pragma once
-#include<vector>
+#include <vector>
+#include<iostream>
 
-template<typename T, typename unique_identifier = unsigned int>
+template <typename T, typename U, typename S>
 class Node
 {
-private:
+	U id;
 	T data;
-	unique_identifier id;
-	std::vector<Node*> connections;
+	std::vector<Node<T, U, S>*> connections;
+	std::vector<S> strength;
 public:
 	Node() = delete;
-	Node(unique_identifier id, T data)
+	Node(U id, T data) : id(id), data(data) {}
+
+	void modify(U id, T data) { this->id = id; this->data = data; }
+	void connect(Node<T, U, S>* pointer, S strength) { this->connections.push_back(pointer); this->strength.push_back(strength); }
+	void display() const
 	{
-		this->data = data;
-		this->id = id;
+		std::cout << "id = " << this->id << ", data = " << this->data << std::endl;
+		for (unsigned int i = 0; i < this->connections.size(); ++i)
+			std::cout << "(" << this->id << ", " << this->connections[i]->getId() << ", " << this->strength[i] << ")";
+		std::cout << std::endl;
 	}
 
-	void connect(Node<T, unique_identifier>* N)
-	{
-		this->connections.push_back(N);
-	}
 	inline T getData() const { return this->data; }
-	inline unique_identifier getId() const { return this->id; }
-	inline std::vector<Node<T, unique_identifier>*> getConnections() const { return this->connections; }
+	inline U getId() const { return this->id; }
+	inline std::vector<Node<T, U, S>*> getConnections() const { return this->connections; }
+	inline std::vector<S> getStrength() const { return this->strength; }
 };
-
